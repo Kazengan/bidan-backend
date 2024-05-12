@@ -3,6 +3,7 @@ package findpasien
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -77,8 +78,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer cursor.Close(context.Background())
-	// Iterate over the cursor and extract id_pasien values
-	var finalList []int // Assuming id_pasien is of type string
+	finalList := []int{}
 	for cursor.Next(context.Background()) {
 		var result bson.M
 		if err := cursor.Decode(&result); err != nil {
@@ -87,15 +87,21 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 			w.Write(jsonData)
 			return
 		}
-		idPasien, ok := result["id_pasien"].(int)
+		// get id_pasien from result (id_pasien is int in the database mongodb)
+		idPasien_raw, ok := result["id_pasien"].(int64)
+
 		if !ok {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "failed to convert id_pasien to int", "statusCode": 500})
+			//print id_pasien data type to log
+			log.Printf("id_pasien data type: %T", result["id_pasien"])
+			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Failed to convert id_pasien to int", "statusCode": 500})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
+			return
 		}
+		idPasien := int(idPasien_raw)
 		finalList = append(finalList, idPasien)
 	}
-	// Send the final list as JSON response
+
 	jsonData, _ := json.Marshal(map[string]interface{}{"message": "Success", "id_pasien_list": finalList})
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
