@@ -22,6 +22,7 @@ func main() {
 	http.HandleFunc("/api/count", count.CountHandler)
 	http.HandleFunc("/api/editkb", editkb.EditKb)
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
+	http.HandleFunc("/api/getpasien", getpasien.GetPasien)
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }

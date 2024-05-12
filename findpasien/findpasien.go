@@ -3,7 +3,6 @@ package findpasien
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -91,9 +90,8 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		idPasien_raw, ok := result["id_pasien"].(int64)
 
 		if !ok {
-			//print id_pasien data type to log
-			log.Printf("id_pasien data type: %T", result["id_pasien"])
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Failed to convert id_pasien to int", "statusCode": 500})
+			// log.Printf("id_pasien data type: %T", result["id_pasien"])
+			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Failed to convert id_pasien to int"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
