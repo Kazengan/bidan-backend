@@ -3,6 +3,7 @@ package inputkb
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -12,23 +13,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Counter struct {
-	ID            string `bson:"_id"`
-	SequenceValue int    `bson:"sequence_value"`
-}
-
 func getNextPasien(db *mongo.Database) (uint64, error) {
 	collection := db.Collection("pasien_counter")
 	filter := bson.M{}
-	update := bson.M{"$inc": bson.M{"sequence_value": 1}}
+	update := bson.M{"$inc": bson.M{"seq_value": 1}}
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	var updatedCounter Counter
+	var updatedCounter bson.M
 	err := collection.FindOneAndUpdate(context.Background(), filter, update, options).Decode(&updatedCounter)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint64(updatedCounter.SequenceValue), nil
+	sequenceValue, ok := updatedCounter["seq_value"].(int64)
+	if !ok {
+		return 0, fmt.Errorf("sequence_value is not of type int64, sequence_value: %v, sequence_value type: %T", updatedCounter["sequence_value"], updatedCounter["sequence_value"])
+	}
+
+	return uint64(sequenceValue), nil
 }
 
 func InputKB(w http.ResponseWriter, r *http.Request) {
@@ -76,9 +77,9 @@ func InputKB(w http.ResponseWriter, r *http.Request) {
 
 	next_id_pasien, err := getNextPasien(db)
 	if err != nil {
-		w.WriteHeader(500)
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "error getting next id pasien"})
-		w.Write(jsonData)
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error() + "\naaaaaaaa"))
 		return
 	}
 
