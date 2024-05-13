@@ -22,7 +22,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
-		message := map[string]string{"message": "Error, .env URI NOT FOUND"}
+		message := map[string]string{"message": "Error, .env URI NOT FOUNDD"}
 		jsonData, _ := json.Marshal(message)
 
 		w.WriteHeader(401)
