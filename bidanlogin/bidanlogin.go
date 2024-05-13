@@ -77,10 +77,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if bcrypt.CompareHashAndPassword([]byte(user["password"].(string)), []byte(password)) != nil {
 		message := map[string]string{"message": "Username or password is wrong"}
-
 		w.WriteHeader(401)
 		jsonData, _ := json.Marshal(message)
-
 		w.Write(jsonData)
 		return
 	}

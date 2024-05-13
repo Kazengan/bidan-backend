@@ -12,6 +12,7 @@ import (
 	"github.com/Kazengan/bidan-backend/getpasien"
 	"github.com/Kazengan/bidan-backend/inputkb"
 	"github.com/Kazengan/bidan-backend/soapkb"
+	"github.com/Kazengan/bidan-backend/tablekb"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
+	http.HandleFunc("/api/tablekb", tablekb.TableKB)
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }

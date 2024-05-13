@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -104,6 +105,8 @@ func TableKB(w http.ResponseWriter, r *http.Request) {
 		for _, data := range pasien_history_arr {
 			tglDatang := data["tglDatang"].(string)
 			tglDatang = tglDatang[:10]
+			// convert tglDatang to dd-mm-yyyy
+			tglDatang = tglDatang[8:] + "-" + tglDatang[5:7] + "-" + tglDatang[:4]
 			data["tglDatang"] = tglDatang
 		}
 
@@ -111,13 +114,13 @@ func TableKB(w http.ResponseWriter, r *http.Request) {
 
 		tanggalDatetime, err := time.Parse("02-01-2006", last_datang)
 		if err != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "error convert date"})
+			jsonData, _ := json.Marshal(map[string]interface{}{"message": "error convert date", "last_datang_value": last_datang, "last_datang_type": reflect.TypeOf(last_datang)})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
 		}
 
-		nama_hari_id := []string{"Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"}
+		nama_hari_id := []string{"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
 		nama_bulan_id := []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"}
 
 		hari := nama_hari_id[tanggalDatetime.Weekday()]
