@@ -1,6 +1,6 @@
 module github.com/Kazengan/bidan-backend
 
-go 1.23
+go 1.22.2
 
 require github.com/joho/godotenv v1.5.1
 
