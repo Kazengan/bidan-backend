@@ -51,7 +51,7 @@ func isPasswordValid(password string) (bool, error) {
 	return hasUppercase && hasLowercase && hasDigit && hasSpecial, nil
 }
 
-func RegisterBidan(w http.ResponseWriter, r *http.Request) {
+func RegistBidan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Load .env file
