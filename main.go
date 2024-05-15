@@ -9,6 +9,7 @@ import (
 	"github.com/Kazengan/bidan-backend/count"
 	"github.com/Kazengan/bidan-backend/deletebidan"
 	"github.com/Kazengan/bidan-backend/editkb"
+	"github.com/Kazengan/bidan-backend/editimunisasi"
 	"github.com/Kazengan/bidan-backend/findpasien"
 	"github.com/Kazengan/bidan-backend/getallbidan"
 	"github.com/Kazengan/bidan-backend/getpasien"
@@ -31,6 +32,7 @@ func main() {
 	http.HandleFunc("/api/getpasien", getpasien.GetPasien)
 	http.HandleFunc("/api/count", count.CountHandler)
 	http.HandleFunc("/api/editkb", editkb.EditKb)
+	http.HandleFunc("/api/editimunisasi", editimunisasi.EditImunisasi)
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
