@@ -17,6 +17,7 @@ import (
 	"github.com/Kazengan/bidan-backend/inputkehamilan"
 	"github.com/Kazengan/bidan-backend/registbidan"
 	"github.com/Kazengan/bidan-backend/registpasien"
+	"github.com/Kazengan/bidan-backend/soapimunisasi"
 	"github.com/Kazengan/bidan-backend/soapkb"
 	"github.com/Kazengan/bidan-backend/tablekb"
 )
@@ -33,6 +34,7 @@ func main() {
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
+	http.HandleFunc("/api/soapkb", soapimunisasi.SoapImunisasi)
 	http.HandleFunc("/api/tablekb", tablekb.TableKB)
 	http.HandleFunc("/api/inputkehamilan", inputkehamilan.InputKehamilan)
 	http.HandleFunc("/api/inputimunisasi", inputimunisasi.InputImunisasi)
@@ -40,6 +42,7 @@ func main() {
 	http.HandleFunc("/api/deletebidan", deletebidan.DeleteBidan)
 	http.HandleFunc("/api/registbidan", registbidan.RegistBidan)
 	http.HandleFunc("/api/registpasien", registpasien.RegistPasien)
+
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
