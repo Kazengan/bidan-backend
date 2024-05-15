@@ -16,6 +16,7 @@ import (
 	"github.com/Kazengan/bidan-backend/inputkb"
 	"github.com/Kazengan/bidan-backend/inputkehamilan"
 	"github.com/Kazengan/bidan-backend/registbidan"
+	"github.com/Kazengan/bidan-backend/registpasien"
 	"github.com/Kazengan/bidan-backend/soapkb"
 	"github.com/Kazengan/bidan-backend/tablekb"
 )
@@ -38,6 +39,7 @@ func main() {
 	http.HandleFunc("/api/getallbidan", getallbidan.GetAllBidan)
 	http.HandleFunc("/api/deletebidan", deletebidan.DeleteBidan)
 	http.HandleFunc("/api/registbidan", registbidan.RegistBidan)
+	http.HandleFunc("/api/registpasien", registpasien.RegistPasien)
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
