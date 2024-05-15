@@ -85,9 +85,11 @@ func InputImunisasi(w http.ResponseWriter, r *http.Request) {
 
 	dataPasien := bson.M{
 		"id_pasien":   next_id_pasien,
+		"nomor_bayi":  data["generalInformation"].(map[string]interface{})["nomorBayi"],
+		"nomor":       data["generalInformation"].(map[string]interface{})["nomor"],
 		"nama_pasien": data["generalInformation"].(map[string]interface{})["namaBayi"],
-		"nama_ayah":   data["generalInformation"].(map[string]interface{})["namaSuami"],
-		"umur_ayah":   data["generalInformation"].(map[string]interface{})["usiaSuami"],
+		"nama_ayah":   data["generalInformation"].(map[string]interface{})["namaAyah"],
+		"umur_ayah":   data["generalInformation"].(map[string]interface{})["usiaAyah"],
 		"nama_ibu":    data["generalInformation"].(map[string]interface{})["namaIbu"],
 		"umur_ibu":    data["generalInformation"].(map[string]interface{})["usiaIbu"],
 		"puskesmas":   data["generalInformation"].(map[string]interface{})["puskesmas"],
