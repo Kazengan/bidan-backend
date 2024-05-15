@@ -34,7 +34,7 @@ func main() {
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
-	http.HandleFunc("/api/soapkb", soapimunisasi.SoapImunisasi)
+	http.HandleFunc("/api/soapimunisasi", soapimunisasi.SoapImunisasi)
 	http.HandleFunc("/api/tablekb", tablekb.TableKB)
 	http.HandleFunc("/api/inputkehamilan", inputkehamilan.InputKehamilan)
 	http.HandleFunc("/api/inputimunisasi", inputimunisasi.InputImunisasi)
