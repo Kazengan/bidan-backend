@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -48,7 +49,7 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_pasien_float, ok := dataMap["id_pasien"].(float64)
+	id_pasien_str, ok := dataMap["id_pasien"].(string)
 	if !ok {
 		jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
 		w.WriteHeader(http.StatusBadRequest)
@@ -56,7 +57,14 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_pasien := uint64(id_pasien_float)
+	id_pasien, err := strconv.Atoi(id_pasien_str)
+	if err != nil {
+		jsonData, _ := json.Marshal(map[string]string{"message": "invalid id_pasien"})
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsonData)
+		return
+	}
+	
 	var dataPasien bson.M
 	data := dataMap["data"].(map[string]interface{})
 	if data == nil {
