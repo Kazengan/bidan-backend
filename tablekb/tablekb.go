@@ -137,9 +137,8 @@ func TableKB(w http.ResponseWriter, r *http.Request) {
 			"tglDatang":         tanggal_indonesia,
 			"subRows":           pasien_history_arr,
 		})
-
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "success", "data": returnData})
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
 	}
+	jsonData, _ := json.Marshal(map[string]interface{}{"message": "success", "data": returnData})
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }
