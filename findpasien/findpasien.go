@@ -17,21 +17,21 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := godotenv.Load()
 	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": ".env not found"})
+		jsonData, _ := json.Marshal(map[string]string{"message": ".env not found"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "error connecting to database"})
+		jsonData, _ := json.Marshal(map[string]string{"message": "error connecting to database"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 	}
 
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Database disconnected"})
+			jsonData, _ := json.Marshal(map[string]string{"message": "Database disconnected"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 		}
@@ -43,7 +43,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 	id_layanan_raw := r.URL.Query().Get("id_layanan")
 	id_layanan, err := strconv.Atoi(id_layanan_raw)
 	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Id_layanan needed", "statusCode": 400})
+		jsonData, _ := json.Marshal(map[string]string{"message": "Id_layanan needed"})
 		w.Write(jsonData)
 		return
 	}
@@ -63,15 +63,25 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 				{"nama_pasien": bson.M{"$regex": keyword, "$options": "i"}},
 			},
 		}
+
+	} else if id_layanan == 2 {
+		regexquery = bson.M{
+			"$and": []bson.M{
+				{"data_imunisasi": bson.M{"$exists": true}},
+				{"nama_pasien": bson.M{"$regex": keyword, "$options": "i"}},
+			},
+		}
+
 	} else {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Under construction", "statusCode": 400})
+		jsonData, _ := json.Marshal(map[string]string{"message": "Under construction"})
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 		return
 	}
 
 	cursor, err := collection.Find(context.Background(), regexquery)
 	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Error executing query"})
+		jsonData, _ := json.Marshal(map[string]string{"message": "Error executing query"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 		return
@@ -81,7 +91,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 	for cursor.Next(context.Background()) {
 		var result bson.M
 		if err := cursor.Decode(&result); err != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Error decoding results", "statusCode": 500})
+			jsonData, _ := json.Marshal(map[string]string{"message": "Error decoding results"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
@@ -91,7 +101,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 
 		if !ok {
 			// log.Printf("id_pasien data type: %T", result["id_pasien"])
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Failed to convert id_pasien to int"})
+			jsonData, _ := json.Marshal(map[string]string{"message": "Failed to convert id_pasien to int"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
