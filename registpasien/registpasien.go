@@ -289,7 +289,7 @@ func RegistPasien(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	db := client.Database("mydb")
-	pasien_collection := db.Collection("pasien")
+	pasien_collection := db.Collection("users")
 	pending_pasien_collection := db.Collection("pending_users")
 
 	// Decode request body into User struct
@@ -375,13 +375,6 @@ func RegistPasien(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonData, _ := json.Marshal(map[string]interface{}{"message": "User registered successfully", "verification_code": verification_code})
-	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Error inserting user into database"})
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonData)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
 }
