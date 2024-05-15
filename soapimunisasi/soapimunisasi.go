@@ -48,8 +48,14 @@ func SoapImunisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := dataMap["data"].(map[string]interface{})
-	//convert dataMap["id_pasien"] to uint64 and re-assign it to dataMap["id_pasien"]
+    data, ok := dataMap["data"].(map[string]interface{})
+    if !ok {
+        jsonData, _ := json.Marshal(map[string]string{"message": "Missing 'data' field in request body"})
+        w.WriteHeader(http.StatusBadRequest)
+        w.Write(jsonData)
+        return
+    }
+	
 	idPasien, _ := data["id_pasien"].(string)
 	data["id_pasien"], err = strconv.Atoi(idPasien)
 	if err != nil {
