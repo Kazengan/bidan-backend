@@ -84,6 +84,22 @@ func CountHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 
+	case 2:
+		collection := db.Collection("soap_imunisasi")
+		now := time.Now().UTC() // Declare the "now" variable
+		startOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
+		endOfMonth := time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, time.UTC).Format("2006-01-02")
+		filterCriteria := bson.M{"tglDatang": bson.M{"$gte": startOfMonth, "$lt": endOfMonth}}
+		countData, err := collection.CountDocuments(context.Background(), filterCriteria)
+		if err != nil {
+			somethingWentWrong, _ := json.Marshal(map[string]interface{}{"message": "Counting went wrong", "statusCode": 400})
+			w.Write(somethingWentWrong)
+			return
+		}
+		jsonData, _ := json.Marshal(map[string]interface{}{"statusCode": 200, "message": "Success", "jumlah": countData})
+		w.Write(jsonData)
+		return
+
 	default:
 		jsonData, _ := json.Marshal(map[string]interface{}{"statusCode": 200, "message": "Success", "jumlah": 0})
 		w.Write(jsonData)

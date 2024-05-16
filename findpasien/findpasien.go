@@ -110,7 +110,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		finalList = append(finalList, idPasien)
 	}
 
-	jsonData, _ := json.Marshal(map[string]interface{}{"message": "Success", "id_pasien_list": finalList})
+	jsonData, _ := json.Marshal(map[string]interface{}{"message": "Success", "id_pasien": finalList})
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
 }

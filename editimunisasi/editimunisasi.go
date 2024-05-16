@@ -49,12 +49,27 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_pasien_str, ok := dataMap["id_pasien"].(string)
-	if !ok {
-		jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
+	var id_pasien_str string
+	if r.Method == "GET" {
+		id_pasien := r.URL.Query().Get("id_pasien")
+		if id_pasien == "" {
+			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+
+		id_pasien_str = id_pasien
+	} else {
+		id_pasien, ok := dataMap["id_pasien"].(string)
+		if !ok {
+			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+
+		id_pasien_str = id_pasien
 	}
 
 	id_pasien, err := strconv.Atoi(id_pasien_str)
@@ -113,39 +128,39 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 	} else {
-	targetPasien := bson.M{"id_pasien": id_pasien}
-	dataPasien := bson.M{
-		"nomor_bayi":  data["generalInformation"].(map[string]interface{})["nomorBayi"],
-		"nomor":       data["generalInformation"].(map[string]interface{})["nomor"],
-		"nama_pasien": data["generalInformation"].(map[string]interface{})["namaBayi"],
-		"nama_ayah":   data["generalInformation"].(map[string]interface{})["namaAyah"],
-		"umur_ayah":   data["generalInformation"].(map[string]interface{})["usiaAyah"],
-		"nama_ibu":    data["generalInformation"].(map[string]interface{})["namaIbu"],
-		"umur_ibu":    data["generalInformation"].(map[string]interface{})["usiaIbu"],
-		"puskesmas":   data["generalInformation"].(map[string]interface{})["puskesmas"],
-		"bidan":       data["generalInformation"].(map[string]interface{})["bidan"],
-		"alamat":      data["generalInformation"].(map[string]interface{})["alamat"],
-		"desa":        data["generalInformation"].(map[string]interface{})["desa"],
-		"kecamatan":   data["generalInformation"].(map[string]interface{})["kecamatan"],
-		"kabupaten":   data["generalInformation"].(map[string]interface{})["kabupaten"],
-		"provinsi":    data["generalInformation"].(map[string]interface{})["provinsi"],
-		"data_imunisasi": bson.M{
-			"detail_bayi":                   data["detailBayi"],
-			"pemeriksaan_neonatus":          data["pemeriksaanNeonatus"],
-			"pemeriksaan_neonatus_lanjutan": data["pemeriksaanNeonatusLanjutan"],
-			"pemeriksaan_balita":            data["pemeriksaanBalita"],
-		},
-	}
+		targetPasien := bson.M{"id_pasien": id_pasien}
+		dataPasien := bson.M{
+			"nomor_bayi":  data["generalInformation"].(map[string]interface{})["nomorBayi"],
+			"nomor":       data["generalInformation"].(map[string]interface{})["nomor"],
+			"nama_pasien": data["generalInformation"].(map[string]interface{})["namaBayi"],
+			"nama_ayah":   data["generalInformation"].(map[string]interface{})["namaAyah"],
+			"umur_ayah":   data["generalInformation"].(map[string]interface{})["usiaAyah"],
+			"nama_ibu":    data["generalInformation"].(map[string]interface{})["namaIbu"],
+			"umur_ibu":    data["generalInformation"].(map[string]interface{})["usiaIbu"],
+			"puskesmas":   data["generalInformation"].(map[string]interface{})["puskesmas"],
+			"bidan":       data["generalInformation"].(map[string]interface{})["bidan"],
+			"alamat":      data["generalInformation"].(map[string]interface{})["alamat"],
+			"desa":        data["generalInformation"].(map[string]interface{})["desa"],
+			"kecamatan":   data["generalInformation"].(map[string]interface{})["kecamatan"],
+			"kabupaten":   data["generalInformation"].(map[string]interface{})["kabupaten"],
+			"provinsi":    data["generalInformation"].(map[string]interface{})["provinsi"],
+			"data_imunisasi": bson.M{
+				"detail_bayi":                   data["detailBayi"],
+				"pemeriksaan_neonatus":          data["pemeriksaanNeonatus"],
+				"pemeriksaan_neonatus_lanjutan": data["pemeriksaanNeonatusLanjutan"],
+				"pemeriksaan_balita":            data["pemeriksaanBalita"],
+			},
+		}
 
-	if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien)})
-		w.WriteHeader(http.StatusInternalServerError)
+		if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien)})
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(jsonData)
+			return
+		}
+
+		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien)})
+		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
-		return
-	}
-
-	jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien)})
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 	}
 }
