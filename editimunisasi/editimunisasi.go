@@ -42,12 +42,6 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	var dataMap map[string]interface{}
-	if err := decoder.Decode(&dataMap); err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data from request body"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
-	}
 
 	var id_pasien_str string
 	if r.Method == "GET" {
@@ -61,6 +55,13 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 
 		id_pasien_str = id_pasien
 	} else {
+		if err := decoder.Decode(&dataMap); err != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data from request body"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+
 		id_pasien, ok := dataMap["id_pasien"].(string)
 		if !ok {
 			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
@@ -94,7 +95,7 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 
 		var pasienData bson.M
 		if err := pasien.Decode(&pasienData); err != nil {
-			jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data"})
+			jsonData, _ := json.Marshal(map[string]interface{}{"message": "error decoding data", "error": err.Error()})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
