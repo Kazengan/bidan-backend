@@ -65,7 +65,7 @@ func EditImunisasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, ok:= dataMap["data"].(map[string]interface{})
+	data, ok := dataMap["data"].(map[string]interface{})
 	if !ok || len(data) == 0 {
 		filterData := bson.M{"id_pasien": id_pasien}
 		pasien := db.Collection("pasien").FindOne(context.Background(), filterData)

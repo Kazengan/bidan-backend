@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func Helper(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +36,8 @@ func Helper(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	db := client.Database("mydb")
+
 	decoder := json.NewDecoder(r.Body)
 	var dataMap map[string]interface{}
 	if err := decoder.Decode(&dataMap); err != nil {
@@ -45,9 +48,9 @@ func Helper(w http.ResponseWriter, r *http.Request) {
 	}
 	// log.Printf("data: %v", dataMap)
 
-	id_pasien_str, ok := dataMap["id_pasien"].(string)
-	if !ok {
-		jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
+	id_pasien_str := dataMap["id_pasien"].(string)
+	if id_pasien_str == "" {
+		jsonData, _ := json.Marshal(map[string]string{"message": "error id_pasien is empty"})
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonData)
 		return
@@ -61,37 +64,87 @@ func Helper(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var filterData bson.M
+	var targetPasien bson.M
+	var dataPasien bson.M
+
 	data, ok := dataMap["data"].(map[string]interface{})
+	if !ok || len(data) == 0 {
+		filterData = bson.M{"id_pasien": id_pasien_int}
+		pasien := db.Collection("pasien").FindOne(context.Background(), filterData)
 
-	//check if data is not empty or present in the request
-	if !ok || len(data) == 0{
-		// db := client.Database("mydb")
-		// coll := db.Collection("pasien")
-		// filter := bson.M{"id_pasien": id_pasien_int}
+		if pasien.Err() != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien tidak ditemukan"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
 
-		// pasien := coll.FindOne(context.Background(), filter)
-		// if pasien.Err() != nil {
-		// 	jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien tidak ditemukan"})
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	w.Write(jsonData)
-		// 	return
-		// }
+		var pasienData bson.M
+		if err := pasien.Decode(&pasienData); err != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data"})
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(jsonData)
+			return
+		}
 
-		// var pasienData bson.M
-		// if err := pasien.Decode(&pasienData); err != nil {
-		// 	jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data"})
-		// 	w.WriteHeader(http.StatusInternalServerError)
-		// 	w.Write(jsonData)
-		// 	return
-		// }
+		returnData := bson.M{
+			"generalInformation": bson.M{
+				"noFaskes":          pasienData["data_kb"].(bson.M)["no_faskes"],
+				"noSeriKartu":       pasienData["data_kb"].(bson.M)["no_seri_kartu"],
+				"tglDatang":         pasienData["tanggal_register"],
+				"namaPeserta":       pasienData["nama_pasien"],
+				"tglLahir":          pasienData["tanggal_lahir"],
+				"usia":              pasienData["umur"],
+				"namaPasangan":      pasienData["nama_pasangan"],
+				"jenisPasangan":     pasienData["jenis_pasangan"],
+				"pendidikanAkhir":   pasienData["pendidikan"],
+				"alamat":            pasienData["alamat"],
+				"pekerjaanPasangan": pasienData["pekerjaan_pasangan"],
+				"statusJkn":         pasienData["data_kb"].(bson.M)["status_jkn"],
+			},
+			"otherInformation": pasienData["data_kb"].(bson.M)["informasi_lainnya"],
+			"skrining":         pasienData["data_kb"].(bson.M)["skrining"],
+			"hasil":            pasienData["data_kb"].(bson.M)["hasil"],
+			"penapisanKB":      pasienData["data_kb"].(bson.M)["penapisan_kb"],
+		}
 
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "success", "id_pasien": id_pasien_int, "id_pasien_type": fmt.Sprintf("%T", id_pasien_int), "data": data})
+		jsonData, _ := json.Marshal(map[string]interface{}{"message": "success", "data": returnData})
 		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
-
-	} else {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "success", "id_pasien": id_pasien_int, "id_pasien_type": fmt.Sprintf("%T", id_pasien_int), "data": "empty data"})
-		w.WriteHeader(http.StatusOK)
-		w.Write(jsonData)
+		return
 	}
+
+	targetPasien = bson.M{"id_pasien": id_pasien_int}
+	dataPasien = bson.M{
+		"tanggal_register":   data["generalInformation"].(map[string]interface{})["tglDatang"],
+		"nama_pasien":        data["generalInformation"].(map[string]interface{})["namaPeserta"],
+		"tanggal_lahir":      data["generalInformation"].(map[string]interface{})["tglLahir"],
+		"umur":               data["generalInformation"].(map[string]interface{})["usia"],
+		"nama_pasangan":      data["generalInformation"].(map[string]interface{})["namaPasangan"],
+		"jenis_pasangan":     data["generalInformation"].(map[string]interface{})["jenisPasangan"],
+		"pendidikan":         data["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
+		"alamat":             data["generalInformation"].(map[string]interface{})["alamat"],
+		"pekerjaan_pasangan": data["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
+		"data_kb": bson.M{
+			"status_jkn":        data["generalInformation"].(map[string]interface{})["statusJkn"],
+			"no_faskes":         data["generalInformation"].(map[string]interface{})["noFaskes"],
+			"no_seri_kartu":     data["generalInformation"].(map[string]interface{})["noSeriKartu"],
+			"informasi_lainnya": data["otherInformation"],
+			"skrining":          data["skrining"],
+			"hasil":             data["hasil"],
+			"penapisan_kb":      data["penapisanKB"],
+		},
+	}
+
+	if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
+		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien_int)})
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonData)
+		return
+	}
+
+	jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien_int)})
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
 }

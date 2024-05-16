@@ -45,7 +45,7 @@ func main() {
 	http.HandleFunc("/api/deletebidan", deletebidan.DeleteBidan)
 	http.HandleFunc("/api/registbidan", registbidan.RegistBidan)
 	http.HandleFunc("/api/registpasien", registpasien.RegistPasien)
-	http.HandleFunc("/api/helper", helper.Helper)
+	http.HandleFunc("/api/helper	", helper.Helper)
 
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
