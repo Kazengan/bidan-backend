@@ -48,14 +48,14 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 	}
 	// log.Printf("data: %v", dataMap)
 
-	id_pasien_float, ok := dataMap["id_pasien"].(float64)
-	if !ok {
-		jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
+	id_pasien_str := dataMap["id_pasien"].(string)
+	if id_pasien_str == "" {
+		jsonData, _ := json.Marshal(map[string]string{"message": "error id_pasien is empty"})
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonData)
 		return
 	}
-	id_pasien_str := fmt.Sprintf("%.0f", id_pasien_float)
+
 	id_pasien_int, err := strconv.Atoi(id_pasien_str)
 	if err != nil {
 		jsonData, _ := json.Marshal(map[string]string{"message": "error converting id_pasien to integer"})
@@ -68,8 +68,8 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 	var targetPasien bson.M
 	var dataPasien bson.M
 
-	data := dataMap["data"].(map[string]interface{})
-	if data == nil {
+	data, ok := dataMap["data"].(map[string]interface{})
+	if !ok || len(data) == 0 {
 		filterData = bson.M{"id_pasien": id_pasien_int}
 		pasien := db.Collection("pasien").FindOne(context.Background(), filterData)
 
