@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,14 +23,14 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Connect database error"})
+		jsonData, _ := json.Marshal(map[string]string{"message": "Connect database error"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 	}
 
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "Database disconnected"})
+			jsonData, _ := json.Marshal(map[string]string{"message": "Database disconnected"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 		}
@@ -40,7 +41,7 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var dataMap map[string]interface{}
 	if err := decoder.Decode(&dataMap); err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "error decoding data from request body"})
+		jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data from request body"})
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonData)
 		return
@@ -49,12 +50,19 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 	id_pasien_float, ok := dataMap["id_pasien"].(float64)
 	if !ok {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "id_pasien invalid"})
+		jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonData)
 		return
 	}
-	id_pasien := uint64(id_pasien_float)
+	id_pasien_str := fmt.Sprintf("%.0f", id_pasien_float)
+	id_pasien_int, err := strconv.Atoi(id_pasien_str)
+	if err != nil {
+		jsonData, _ := json.Marshal(map[string]string{"message": "error converting id_pasien to integer"})
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsonData)
+		return
+	}
 
 	var filterData bson.M
 	var targetPasien bson.M
@@ -62,11 +70,11 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 	data := dataMap["data"].(map[string]interface{})
 	if data == nil {
-		filterData = bson.M{"id_pasien": id_pasien}
+		filterData = bson.M{"id_pasien": id_pasien_int}
 		pasien := db.Collection("pasien").FindOne(context.Background(), filterData)
 
 		if pasien.Err() != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "id_pasien tidak ditemukan", "statusCode": 401})
+			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien tidak ditemukan"})
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(jsonData)
 			return
@@ -74,7 +82,7 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 		var pasienData bson.M
 		if err := pasien.Decode(&pasienData); err != nil {
-			jsonData, _ := json.Marshal(map[string]interface{}{"message": "error decoding data"})
+			jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 			return
@@ -107,7 +115,7 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	targetPasien = bson.M{"id_pasien": id_pasien}
+	targetPasien = bson.M{"id_pasien": id_pasien_int}
 	dataPasien = bson.M{
 		"tanggal_register":   data["generalInformation"].(map[string]interface{})["tglDatang"],
 		"nama_pasien":        data["generalInformation"].(map[string]interface{})["namaPeserta"],
@@ -130,13 +138,13 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien)})
+		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien_int)})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
 		return
 	}
 
-	jsonData, _ := json.Marshal(map[string]interface{}{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien)})
+	jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien_int)})
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
 }
