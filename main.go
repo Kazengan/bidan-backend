@@ -13,6 +13,7 @@ import (
 	"github.com/Kazengan/bidan-backend/findpasien"
 	"github.com/Kazengan/bidan-backend/getallbidan"
 	"github.com/Kazengan/bidan-backend/getpasien"
+	"github.com/Kazengan/bidan-backend/getreservasi"
 	"github.com/Kazengan/bidan-backend/helper"
 	"github.com/Kazengan/bidan-backend/inputimunisasi"
 	"github.com/Kazengan/bidan-backend/inputkb"
@@ -21,8 +22,8 @@ import (
 	"github.com/Kazengan/bidan-backend/registpasien"
 	"github.com/Kazengan/bidan-backend/soapimunisasi"
 	"github.com/Kazengan/bidan-backend/soapkb"
-	"github.com/Kazengan/bidan-backend/tablekb"
 	"github.com/Kazengan/bidan-backend/tableimunisasi"
+	"github.com/Kazengan/bidan-backend/tablekb"
 )
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	}
 	http.HandleFunc("/api/bidanlogin", bidanlogin.LoginHandler)
 	http.HandleFunc("/api/getpasien", getpasien.GetPasien)
+	http.HandleFunc("/api/getreservasi", getreservasi.GetReservasi)
 	http.HandleFunc("/api/count", count.CountHandler)
 	http.HandleFunc("/api/editkb", editkb.EditKb)
 	http.HandleFunc("/api/editimunisasi", editimunisasi.EditImunisasi)
