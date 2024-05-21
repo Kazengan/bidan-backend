@@ -30,30 +30,40 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {
 		if err := client.Disconnect(context.Background()); err != nil {
-			jsonData, _ := json.Marshal(map[string]string{"message": "Database disconnected"})
+			jsonData, _ := json.Marshal(map[string]string{"message": "Failed to disconnect from database"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
 		}
 	}()
 
-	db := client.Database("mydb")
-
-	decoder := json.NewDecoder(r.Body)
 	var dataMap map[string]interface{}
-	if err := decoder.Decode(&dataMap); err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data from request body"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
-	}
-	// log.Printf("data: %v", dataMap)
+	var id_pasien_str string
+	if r.Method == "GET" {
+		id_pasien := r.URL.Query().Get("id_pasien")
+		if id_pasien == "" {
+			jsonData, _ := json.Marshal(map[string]string{"message": "id_pasien invalid"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+		id_pasien_str = id_pasien
 
-	id_pasien_str := dataMap["id_pasien"].(string)
-	if id_pasien_str == "" {
-		jsonData, _ := json.Marshal(map[string]string{"message": "error id_pasien is empty"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
+	} else {
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&dataMap); err != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": "error decoding data from request body"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+
+		id_pasien_str = dataMap["id_pasien"].(string)
+		if id_pasien_str == "" {
+			jsonData, _ := json.Marshal(map[string]string{"message": "error id_pasien is empty"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
 	}
 
 	id_pasien_int, err := strconv.Atoi(id_pasien_str)
@@ -65,8 +75,7 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var filterData bson.M
-	var targetPasien bson.M
-	var dataPasien bson.M
+	db := client.Database("mydb")
 
 	data, ok := dataMap["data"].(map[string]interface{})
 	if !ok || len(data) == 0 {
@@ -113,38 +122,39 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
 		return
-	}
 
-	targetPasien = bson.M{"id_pasien": id_pasien_int}
-	dataPasien = bson.M{
-		"tanggal_register":   data["generalInformation"].(map[string]interface{})["tglDatang"],
-		"nama_pasien":        data["generalInformation"].(map[string]interface{})["namaPeserta"],
-		"tanggal_lahir":      data["generalInformation"].(map[string]interface{})["tglLahir"],
-		"umur":               data["generalInformation"].(map[string]interface{})["usia"],
-		"nama_pasangan":      data["generalInformation"].(map[string]interface{})["namaPasangan"],
-		"jenis_pasangan":     data["generalInformation"].(map[string]interface{})["jenisPasangan"],
-		"pendidikan":         data["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
-		"alamat":             data["generalInformation"].(map[string]interface{})["alamat"],
-		"pekerjaan_pasangan": data["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
-		"data_kb": bson.M{
-			"status_jkn":        data["generalInformation"].(map[string]interface{})["statusJkn"],
-			"no_faskes":         data["generalInformation"].(map[string]interface{})["noFaskes"],
-			"no_seri_kartu":     data["generalInformation"].(map[string]interface{})["noSeriKartu"],
-			"informasi_lainnya": data["otherInformation"],
-			"skrining":          data["skrining"],
-			"hasil":             data["hasil"],
-			"penapisan_kb":      data["penapisanKB"],
-		},
-	}
+	} else {
+		targetPasien := bson.M{"id_pasien": id_pasien_int}
+		dataPasien := bson.M{
+			"tanggal_register":   data["generalInformation"].(map[string]interface{})["tglDatang"],
+			"nama_pasien":        data["generalInformation"].(map[string]interface{})["namaPeserta"],
+			"tanggal_lahir":      data["generalInformation"].(map[string]interface{})["tglLahir"],
+			"umur":               data["generalInformation"].(map[string]interface{})["usia"],
+			"nama_pasangan":      data["generalInformation"].(map[string]interface{})["namaPasangan"],
+			"jenis_pasangan":     data["generalInformation"].(map[string]interface{})["jenisPasangan"],
+			"pendidikan":         data["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
+			"alamat":             data["generalInformation"].(map[string]interface{})["alamat"],
+			"pekerjaan_pasangan": data["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
+			"data_kb": bson.M{
+				"status_jkn":        data["generalInformation"].(map[string]interface{})["statusJkn"],
+				"no_faskes":         data["generalInformation"].(map[string]interface{})["noFaskes"],
+				"no_seri_kartu":     data["generalInformation"].(map[string]interface{})["noSeriKartu"],
+				"informasi_lainnya": data["otherInformation"],
+				"skrining":          data["skrining"],
+				"hasil":             data["hasil"],
+				"penapisan_kb":      data["penapisanKB"],
+			},
+		}
 
-	if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien_int)})
-		w.WriteHeader(http.StatusInternalServerError)
+		if _, err := db.Collection("pasien").UpdateOne(context.Background(), targetPasien, bson.M{"$set": dataPasien}); err != nil {
+			jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("error updating data for id_pasien=%d", id_pasien_int)})
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(jsonData)
+			return
+		}
+
+		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien_int)})
+		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
-		return
 	}
-
-	jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("changed id_pasien=%d data", id_pasien_int)})
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
 }
