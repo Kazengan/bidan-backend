@@ -38,6 +38,7 @@ func EditKb(w http.ResponseWriter, r *http.Request) {
 
 	var dataMap map[string]interface{}
 	var id_pasien_str string
+	
 	if r.Method == "GET" {
 		id_pasien := r.URL.Query().Get("id_pasien")
 		if id_pasien == "" {
