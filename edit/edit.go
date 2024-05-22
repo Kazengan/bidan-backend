@@ -263,6 +263,10 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		jsonData, _ := json.Marshal(map[string]string{"message": fmt.Sprintf("success updating data for id_pasien=%d", id_pasien_int)})
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
+		return
 	}
 
 }
