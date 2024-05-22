@@ -150,6 +150,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 		return
 
+		//if request POST
 	} else {
 		decoder := json.NewDecoder(r.Body)
 		var dataMap map[string]interface{}
@@ -192,29 +193,37 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		data, ok := dataMap["data"].(map[string]interface{})
+		if !ok || len(data) == 0 {
+			jsonData, _ := json.Marshal(map[string]string{"message": "(POST) error data is empty"})
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonData)
+			return
+		}
+
 		db := client.Database("mydb")
 		targetPasien := bson.M{"id_pasien": id_pasien_int}
 		var dataPasien bson.M
 
 		if id_layanan_int == 0 {
 			dataPasien = bson.M{
-				"tanggal_register":   dataMap["generalInformation"].(map[string]interface{})["tglDatang"],
-				"nama_pasien":        dataMap["generalInformation"].(map[string]interface{})["namaPeserta"],
-				"tanggal_lahir":      dataMap["generalInformation"].(map[string]interface{})["tglLahir"],
-				"umur":               dataMap["generalInformation"].(map[string]interface{})["usia"],
-				"nama_pasangan":      dataMap["generalInformation"].(map[string]interface{})["namaPasangan"],
-				"jenis_pasangan":     dataMap["generalInformation"].(map[string]interface{})["jenisPasangan"],
-				"pendidikan":         dataMap["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
-				"alamat":             dataMap["generalInformation"].(map[string]interface{})["alamat"],
-				"pekerjaan_pasangan": dataMap["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
+				"tanggal_register":   data["generalInformation"].(map[string]interface{})["tglDatang"],
+				"nama_pasien":        data["generalInformation"].(map[string]interface{})["namaPeserta"],
+				"tanggal_lahir":      data["generalInformation"].(map[string]interface{})["tglLahir"],
+				"umur":               data["generalInformation"].(map[string]interface{})["usia"],
+				"nama_pasangan":      data["generalInformation"].(map[string]interface{})["namaPasangan"],
+				"jenis_pasangan":     data["generalInformation"].(map[string]interface{})["jenisPasangan"],
+				"pendidikan":         data["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
+				"alamat":             data["generalInformation"].(map[string]interface{})["alamat"],
+				"pekerjaan_pasangan": data["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
 				"data_kb": bson.M{
-					"status_jkn":        dataMap["generalInformation"].(map[string]interface{})["statusJkn"],
-					"no_faskes":         dataMap["generalInformation"].(map[string]interface{})["noFaskes"],
-					"no_seri_kartu":     dataMap["generalInformation"].(map[string]interface{})["noSeriKartu"],
-					"informasi_lainnya": dataMap["otherInformation"],
-					"skrining":          dataMap["skrining"],
-					"hasil":             dataMap["hasil"],
-					"penapisan_kb":      dataMap["penapisanKB"],
+					"status_jkn":        data["generalInformation"].(map[string]interface{})["statusJkn"],
+					"no_faskes":         data["generalInformation"].(map[string]interface{})["noFaskes"],
+					"no_seri_kartu":     data["generalInformation"].(map[string]interface{})["noSeriKartu"],
+					"informasi_lainnya": data["otherInformation"],
+					"skrining":          data["skrining"],
+					"hasil":             data["hasil"],
+					"penapisan_kb":      data["penapisanKB"],
 				},
 			}
 		} else if id_layanan_int == 1 {
@@ -224,25 +233,25 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		} else if id_layanan_int == 2 {
 			dataPasien = bson.M{
-				"nomor_bayi":  dataMap["generalInformation"].(map[string]interface{})["nomorBayi"],
-				"nomor":       dataMap["generalInformation"].(map[string]interface{})["nomor"],
-				"nama_pasien": dataMap["generalInformation"].(map[string]interface{})["namaBayi"],
-				"nama_ayah":   dataMap["generalInformation"].(map[string]interface{})["namaAyah"],
-				"umur_ayah":   dataMap["generalInformation"].(map[string]interface{})["usiaAyah"],
-				"nama_ibu":    dataMap["generalInformation"].(map[string]interface{})["namaIbu"],
-				"umur_ibu":    dataMap["generalInformation"].(map[string]interface{})["usiaIbu"],
-				"puskesmas":   dataMap["generalInformation"].(map[string]interface{})["puskesmas"],
-				"bidan":       dataMap["generalInformation"].(map[string]interface{})["bidan"],
-				"alamat":      dataMap["generalInformation"].(map[string]interface{})["alamat"],
-				"desa":        dataMap["generalInformation"].(map[string]interface{})["desa"],
-				"kecamatan":   dataMap["generalInformation"].(map[string]interface{})["kecamatan"],
-				"kabupaten":   dataMap["generalInformation"].(map[string]interface{})["kabupaten"],
-				"provinsi":    dataMap["generalInformation"].(map[string]interface{})["provinsi"],
+				"nomor_bayi":  data["generalInformation"].(map[string]interface{})["nomorBayi"],
+				"nomor":       data["generalInformation"].(map[string]interface{})["nomor"],
+				"nama_pasien": data["generalInformation"].(map[string]interface{})["namaBayi"],
+				"nama_ayah":   data["generalInformation"].(map[string]interface{})["namaAyah"],
+				"umur_ayah":   data["generalInformation"].(map[string]interface{})["usiaAyah"],
+				"nama_ibu":    data["generalInformation"].(map[string]interface{})["namaIbu"],
+				"umur_ibu":    data["generalInformation"].(map[string]interface{})["usiaIbu"],
+				"puskesmas":   data["generalInformation"].(map[string]interface{})["puskesmas"],
+				"bidan":       data["generalInformation"].(map[string]interface{})["bidan"],
+				"alamat":      data["generalInformation"].(map[string]interface{})["alamat"],
+				"desa":        data["generalInformation"].(map[string]interface{})["desa"],
+				"kecamatan":   data["generalInformation"].(map[string]interface{})["kecamatan"],
+				"kabupaten":   data["generalInformation"].(map[string]interface{})["kabupaten"],
+				"provinsi":    data["generalInformation"].(map[string]interface{})["provinsi"],
 				"data_imunisasi": bson.M{
-					"detail_bayi":                   dataMap["detailBayi"],
-					"pemeriksaan_neonatus":          dataMap["pemeriksaanNeonatus"],
-					"pemeriksaan_neonatus_lanjutan": dataMap["pemeriksaanNeonatusLanjutan"],
-					"pemeriksaan_balita":            dataMap["pemeriksaanBalita"],
+					"detail_bayi":                   data["detailBayi"],
+					"pemeriksaan_neonatus":          data["pemeriksaanNeonatus"],
+					"pemeriksaan_neonatus_lanjutan": data["pemeriksaanNeonatusLanjutan"],
+					"pemeriksaan_balita":            data["pemeriksaanBalita"],
 				},
 			}
 		}
