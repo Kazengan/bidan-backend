@@ -67,11 +67,12 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 	pasienCollection := db.Collection("pasien")
 
 	var soapCollection *mongo.Collection
-	if idLayananInt == 0 {
+	switch idLayananInt {
+	case 0:
 		soapCollection = db.Collection("soap_kb")
-	} else if idLayananInt == 2 {
+	case 2:
 		soapCollection = db.Collection("soap_imunisasi")
-	} else {
+	default:
 		return nil, fmt.Errorf("layanan belum tersedia")
 	}
 
@@ -79,57 +80,88 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 	for _, id := range idPasienArr {
 		idInt, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("error converting id_pasien to int64")
+			return nil, fmt.Errorf("error converting id_pasien to int64: %v", err)
 		}
 
 		pasienFilter := bson.M{"id_pasien": idInt}
 		pasienInfo := pasienCollection.FindOne(context.Background(), pasienFilter)
 		if pasienInfo.Err() != nil {
-			return nil, fmt.Errorf("error finding pasien")
-		}
-
-		pasienHistory, err := soapCollection.Find(context.Background(), pasienFilter)
-		if err != nil {
-			return nil, fmt.Errorf("error finding pasien")
-		}
-
-		var pasienHistoryArr []bson.M
-		if err = pasienHistory.All(context.Background(), &pasienHistoryArr); err != nil {
-			return nil, fmt.Errorf("error decoding pasien_history")
+			return nil, fmt.Errorf("error finding pasien: %v", pasienInfo.Err())
 		}
 
 		var pasienData bson.M
 		if err := pasienInfo.Decode(&pasienData); err != nil {
-			return nil, fmt.Errorf("error decoding pasien_info")
+			return nil, fmt.Errorf("error decoding pasien_info: %v", err)
 		}
 
-		processHistoryData(pasienHistoryArr)
-
-		lastDatang := pasienHistoryArr[len(pasienHistoryArr)-1]["tglDatang"].(string)
-		tanggalIndonesia, err := convertToIndonesianDate(lastDatang)
+		pasienHistory, err := soapCollection.Find(context.Background(), pasienFilter)
 		if err != nil {
-			return nil, fmt.Errorf("error convert date")
+			return nil, fmt.Errorf("error finding pasien history: %v", err)
 		}
 
-		data := bson.M{
-			"id_pasien": idInt,
-			"name":      pasienData["nama_pasien"],
-			"tglDatang": tanggalIndonesia,
-			"subRows":   pasienHistoryArr,
+		var pasienHistoryArr []bson.M
+		if err = pasienHistory.All(context.Background(), &pasienHistoryArr); err != nil {
+			return nil, fmt.Errorf("error decoding pasien_history: %v", err)
 		}
 
-		if idLayananInt == 0 {
-			data["metodeKontrasepsi"] = pasienData["data_kb"].(bson.M)["informasi_lainnya"].(bson.M)["caraKBTerakhir"].(string)
-		} else if idLayananInt == 2 {
-			data["namaAyah"] = pasienData["nama_ayah"]
-			data["namaIbu"] = pasienData["nama_ibu"]
-		}
+		// Ensure subRows is an empty array if pasienHistoryArr is empty
+		subRows := make([]bson.M, len(pasienHistoryArr))
+		copy(subRows, pasienHistoryArr)
 
-		returnData = append(returnData, data)
+		if len(pasienHistoryArr) > 0 {
+			processHistoryData(pasienHistoryArr)
+
+			lastDatang := pasienHistoryArr[len(pasienHistoryArr)-1]["tglDatang"].(string)
+			tanggalIndonesia, err := convertToIndonesianDate(lastDatang)
+			if err != nil {
+				return nil, fmt.Errorf("error converting date: %v", err)
+			}
+
+			data := bson.M{
+				"id_pasien": idInt,
+				"name":      pasienData["nama_pasien"],
+				"tglDatang": tanggalIndonesia,
+				"subRows":   subRows,
+			}
+
+			if idLayananInt == 0 {
+				if dataKb, ok := pasienData["data_kb"].(bson.M); ok {
+					if infoLainnya, ok := dataKb["informasi_lainnya"].(bson.M); ok {
+						data["metodeKontrasepsi"] = infoLainnya["caraKBTerakhir"].(string)
+					}
+				}
+			} else if idLayananInt == 2 {
+				data["namaAyah"] = pasienData["nama_ayah"]
+				data["namaIbu"] = pasienData["nama_ibu"]
+			}
+
+			returnData = append(returnData, data)
+		} else {
+			data := bson.M{
+				"id_pasien": idInt,
+				"name":      pasienData["nama_pasien"],
+				"tglDatang": "",
+				"subRows":   subRows,
+			}
+
+			if idLayananInt == 0 {
+				if dataKb, ok := pasienData["data_kb"].(bson.M); ok {
+					if infoLainnya, ok := dataKb["informasi_lainnya"].(bson.M); ok {
+						data["metodeKontrasepsi"] = infoLainnya["caraKBTerakhir"].(string)
+					}
+				}
+			} else if idLayananInt == 2 {
+				data["namaAyah"] = pasienData["nama_ayah"]
+				data["namaIbu"] = pasienData["nama_ibu"]
+			}
+
+			returnData = append(returnData, data)
+		}
 	}
 
 	return returnData, nil
 }
+
 
 func Table(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
