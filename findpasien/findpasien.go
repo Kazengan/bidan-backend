@@ -102,11 +102,9 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 			w.Write(jsonData)
 			return
 		}
-		// get id_pasien from result (id_pasien is int in the database mongodb)
 		idPasien_raw, ok := result["id_pasien"].(int64)
 
 		if !ok {
-			// log.Printf("id_pasien data type: %T", result["id_pasien"])
 			jsonData, _ := json.Marshal(map[string]string{"message": "Failed to convert id_pasien to int"})
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(jsonData)
