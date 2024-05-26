@@ -20,6 +20,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		jsonData, _ := json.Marshal(map[string]string{"message": ".env not found"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
+		return
 	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
@@ -27,6 +28,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		jsonData, _ := json.Marshal(map[string]string{"message": "error connecting to database"})
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(jsonData)
+		return
 	}
 
 	defer func() {
@@ -79,7 +81,10 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cursor, err := collection.Find(context.Background(), regexquery)
+	// Sort the results in descending order by a field, e.g., "_id"
+	findOptions := options.Find().SetSort(bson.M{"id_pasien": -1})
+
+	cursor, err := collection.Find(context.Background(), regexquery, findOptions)
 	if err != nil {
 		jsonData, _ := json.Marshal(map[string]string{"message": "Error executing query"})
 		w.WriteHeader(http.StatusInternalServerError)
@@ -87,6 +92,7 @@ func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer cursor.Close(context.Background())
+
 	finalList := []int{}
 	for cursor.Next(context.Background()) {
 		var result bson.M
