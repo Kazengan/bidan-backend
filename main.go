@@ -24,6 +24,7 @@ import (
 	"github.com/Kazengan/bidan-backend/registpasien"
 	"github.com/Kazengan/bidan-backend/soapimunisasi"
 	"github.com/Kazengan/bidan-backend/soapkb"
+	"github.com/Kazengan/bidan-backend/soapkehamilan"
 	"github.com/Kazengan/bidan-backend/table"
 	"github.com/Kazengan/bidan-backend/tableimunisasi"
 	"github.com/Kazengan/bidan-backend/tablekb"
@@ -46,6 +47,7 @@ func main() {
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
 	http.HandleFunc("/api/soapimunisasi", soapimunisasi.SoapImunisasi)
+	http.HandleFunc("/api/soapkehamilan", soapkehamilan.SoapKehamilan)
 	http.HandleFunc("/api/tablekb", tablekb.TableKB)
 	http.HandleFunc("/api/table", table.Table)
 	http.HandleFunc("/api/tableimunisasi", tableimunisasi.TableImunisasi)
