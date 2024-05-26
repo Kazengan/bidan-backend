@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -53,28 +52,11 @@ func GetReservasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_layanan := r.URL.Query().Get("id_layanan")
-	if id_layanan == "" {
-		jsonData, _ := json.Marshal(map[string]string{"message": "id_layanan is needed"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
-	}
-
-	id_layanan_int, err := strconv.Atoi(id_layanan)
-	if err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": "id_layanan must be a number"})
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonData)
-		return
-	}
-
 	db := client.Database("mydb")
 	collection := db.Collection("reservasi_layanan")
 
 	filter := bson.M{
 		"hariReservasi": tanggal,
-		"id_layanan":    id_layanan_int,
 	}
 
 	cursor, err := collection.Find(context.Background(), filter)
