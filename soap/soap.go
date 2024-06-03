@@ -71,9 +71,13 @@ func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 }
 
 func Soap(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
 	var dataMap map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&dataMap); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request body")
+	err := decoder.Decode(&dataMap)
+	if err != nil {
+		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Invalid request body"})
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsonData)
 		return
 	}
 

@@ -115,10 +115,33 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			}
 
 		} else if id_layanan_int == 1 {
-			jsonData, _ := json.Marshal(map[string]string{"message": "Under construction"})
-			w.WriteHeader(http.StatusOK)
-			w.Write(jsonData)
-			return
+			returnData = bson.M{
+				"generalInformation": bson.M{
+					"agama":           pasienData["data_kehamilan"].(bson.M)["agama"],
+					"pekerjaan":       pasienData["data_kehamilan"].(bson.M)["pekerjaan"],
+					"desa":            pasienData["data_kehamilan"].(bson.M)["desa"],
+					"kabupaten":       pasienData["data_kehamilan"].(bson.M)["kabupaten"],
+					"kecamatan":       pasienData["data_kehamilan"].(bson.M)["kecamatan"],
+					"provinsi":        pasienData["data_kehamilan"].(bson.M)["provinsi"],
+					"rtrw":            pasienData["data_kehamilan"].(bson.M)["rtrw"],
+					"noIbu":           pasienData["data_kehamilan"].(bson.M)["no_ibu"],
+					"tanggalRegister": pasienData["tanggal_register"],
+					"namaLengkap":     pasienData["nama_pasien"],
+					"tanggalLahir":    pasienData["tanggal_lahir"],
+					"umur":            pasienData["umur"],
+					"namaSuami":       pasienData["nama_pasangan"],
+					"pendidikan":      pasienData["pendidikan"],
+					"alamatDomisili":  pasienData["alamat"],
+				},
+				"kunjunganNifas":                        pasienData["data_kehamilan"].(bson.M)["kunjungan_nifas"],
+				"mendeteksiFaktorResikoDanResikoTinggi": pasienData["data_kehamilan"].(bson.M)["faktor_resiko_resiko_tinggi"],
+				"pemeriksaanPNC":                        pasienData["data_kehamilan"].(bson.M)["pemeriksaan_pnc"],
+				"persalinan":                            pasienData["data_kehamilan"].(bson.M)["persalinan"],
+				"rencanaPersalinan":                     pasienData["data_kehamilan"].(bson.M)["rencana_persalinan"],
+				"riwayatKehamilan":                      pasienData["data_kehamilan"].(bson.M)["riwayat_kehamilan"],
+				"skriningTT":                            pasienData["data_kehamilan"].(bson.M)["skriningTT"],
+				"section2":                              pasienData["data_kehamilan"].(bson.M)["section2"],
+			}
 
 		} else if id_layanan_int == 2 {
 			returnData = bson.M{
@@ -227,10 +250,33 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 				},
 			}
 		} else if id_layanan_int == 1 {
-			jsonData, _ := json.Marshal(map[string]string{"message": "Under construction"})
-			w.WriteHeader(http.StatusOK)
-			w.Write(jsonData)
-			return
+			dataPasien = bson.M{
+				"tanggal_register": data["generalInformation"].(map[string]interface{})["tanggalRegister"],
+				"nama_pasien":      data["generalInformation"].(map[string]interface{})["namaLengkap"],
+				"tanggal_lahir":    data["generalInformation"].(map[string]interface{})["tanggalLahir"],
+				"umur":             data["generalInformation"].(map[string]interface{})["umur"],
+				"nama_pasangan":    data["generalInformation"].(map[string]interface{})["namaSuami"],
+				"pendidikan":       data["generalInformation"].(map[string]interface{})["pendidikan"],
+				"alamat":           data["generalInformation"].(map[string]interface{})["alamatDomisili"],
+				"data_kehamilan": bson.M{
+					"pekerjaan":                   data["generalInformation"].(map[string]interface{})["pekerjaan"],
+					"agama":                       data["generalInformation"].(map[string]interface{})["agama"],
+					"desa":                        data["generalInformation"].(map[string]interface{})["desa"],
+					"kabupaten":                   data["generalInformation"].(map[string]interface{})["kabupaten"],
+					"kecamatan":                   data["generalInformation"].(map[string]interface{})["kecamatan"],
+					"provinsi":                    data["generalInformation"].(map[string]interface{})["provinsi"],
+					"rtrw":                        data["generalInformation"].(map[string]interface{})["rtrw"],
+					"no_ibu":                      data["generalInformation"].(map[string]interface{})["noIbu"],
+					"kunjungan_nifas":             data["kunjunganNifas"],
+					"faktor_resiko_resiko_tinggi": data["mendeteksiFaktorResikoDanResikoTinggi"],
+					"pemeriksaan_pnc":             data["pemeriksaanPNC"],
+					"persalinan":                  data["persalinan"],
+					"rencana_persalinan":          data["rencanaPersalinan"],
+					"riwayat_kehamilan":           data["riwayatKehamilan"],
+					"skrining_tt":                 data["skriningTT"],
+					"section2":                    data["section2"],
+				},
+			}
 		} else if id_layanan_int == 2 {
 			dataPasien = bson.M{
 				"nomor_bayi":  data["generalInformation"].(map[string]interface{})["nomorBayi"],

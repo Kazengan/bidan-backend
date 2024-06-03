@@ -70,6 +70,8 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 	switch idLayananInt {
 	case 0:
 		soapCollection = db.Collection("soap_kb")
+	case 1:
+		soapCollection = db.Collection("soap_kehamilan")
 	case 2:
 		soapCollection = db.Collection("soap_imunisasi")
 	default:
@@ -161,7 +163,6 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 
 	return returnData, nil
 }
-
 
 func Table(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
