@@ -20,6 +20,7 @@ import (
 	"github.com/Kazengan/bidan-backend/inputimunisasi"
 	"github.com/Kazengan/bidan-backend/inputkb"
 	"github.com/Kazengan/bidan-backend/inputkehamilan"
+	"github.com/Kazengan/bidan-backend/input"
 	"github.com/Kazengan/bidan-backend/registbidan"
 	"github.com/Kazengan/bidan-backend/registpasien"
 	"github.com/Kazengan/bidan-backend/soap"
@@ -27,6 +28,7 @@ import (
 	"github.com/Kazengan/bidan-backend/soapkb"
 	"github.com/Kazengan/bidan-backend/soapkehamilan"
 	"github.com/Kazengan/bidan-backend/table"
+	"github.com/Kazengan/bidan-backend/tablekehamilan"
 	"github.com/Kazengan/bidan-backend/tableimunisasi"
 	"github.com/Kazengan/bidan-backend/tablekb"
 )
@@ -46,6 +48,7 @@ func main() {
 	http.HandleFunc("/api/edit", edit.Edit)
 	http.HandleFunc("/api/findpasien", findpasien.PasienPerLayanan)
 	http.HandleFunc("/api/inputkb", inputkb.InputKB)
+	http.HandleFunc("/api/input", input.Input)
 	http.HandleFunc("/api/soap", soap.Soap)
 	http.HandleFunc("/api/soapkb", soapkb.SoapKB)
 	http.HandleFunc("/api/soapimunisasi", soapimunisasi.SoapImunisasi)
@@ -53,6 +56,7 @@ func main() {
 	http.HandleFunc("/api/tablekb", tablekb.TableKB)
 	http.HandleFunc("/api/table", table.Table)
 	http.HandleFunc("/api/tableimunisasi", tableimunisasi.TableImunisasi)
+	http.HandleFunc("/api/tablekehamilan", tablekehamilan.TableKehamilan)
 	http.HandleFunc("/api/inputkehamilan", inputkehamilan.InputKehamilan)
 	http.HandleFunc("/api/inputimunisasi", inputimunisasi.InputImunisasi)
 	http.HandleFunc("/api/getallbidan", getallbidan.GetAllBidan)

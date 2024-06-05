@@ -103,7 +103,7 @@ func TableKehamilan(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, data := range pasien_history_arr {
-			tglDatang, ok := data["soapAnc"].(map[string]interface{})["tanggal"].(string)
+			tglDatang, ok := data["tglDatang"].(string)
 			if !ok {
 				jsonData, _ := json.Marshal(map[string]string{"message": "error finding date in pasien history"})
 				w.WriteHeader(http.StatusInternalServerError)

@@ -132,12 +132,16 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 						data["metodeKontrasepsi"] = infoLainnya["caraKBTerakhir"].(string)
 					}
 				}
+			} else if idLayananInt == 1 {
+				data["namaSuami"] = pasienData["nama_pasangan"]
+
 			} else if idLayananInt == 2 {
 				data["namaAyah"] = pasienData["nama_ayah"]
 				data["namaIbu"] = pasienData["nama_ibu"]
 			}
 
 			returnData = append(returnData, data)
+			
 		} else {
 			data := bson.M{
 				"id_pasien": idInt,

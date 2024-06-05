@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -82,15 +81,9 @@ func Input(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idLayananStr := r.URL.Query().Get("id_layanan")
-	if idLayananStr == "" {
-		respondWithError(w, http.StatusBadRequest, "invalid id_layanan")
-		return
-	}
-
-	idLayananInt, err := strconv.Atoi(idLayananStr)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "error converting id_layanan to int")
+	idLayananInt, ok := dataMap["id_layanan"].(float64)
+	if !ok {
+		respondWithError(w, http.StatusBadRequest, "id_layanan field is required")
 		return
 	}
 
@@ -125,6 +118,7 @@ func Input(w http.ResponseWriter, r *http.Request) {
 				"penapisan_kb":      data["penapisanKB"],
 			},
 		}
+
 	case 1:
 		dataPasien = bson.M{
 			"id_pasien":        nextIDPasien,
