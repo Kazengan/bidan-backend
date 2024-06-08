@@ -20,7 +20,7 @@ func respondWithError(w http.ResponseWriter, statusCode int, message string) {
 }
 
 func buildRegexQuery(keyword string, id_layanan int) bson.M {
-	existsField := ""
+	var existsField string
 	switch id_layanan {
 	case 0:
 		existsField = "data_kb"
