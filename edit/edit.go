@@ -139,7 +139,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 				"persalinan":                            pasienData["data_kehamilan"].(bson.M)["persalinan"],
 				"rencanaPersalinan":                     pasienData["data_kehamilan"].(bson.M)["rencana_persalinan"],
 				"riwayatKehamilan":                      pasienData["data_kehamilan"].(bson.M)["riwayat_kehamilan"],
-				"skriningTT":                            pasienData["data_kehamilan"].(bson.M)["skriningTT"],
+				"skriningTT":                            pasienData["data_kehamilan"].(bson.M)["skrining_tt"],
 				"section2":                              pasienData["data_kehamilan"].(bson.M)["section2"],
 			}
 
