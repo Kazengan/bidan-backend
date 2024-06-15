@@ -241,6 +241,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 				"pendidikan":         data["generalInformation"].(map[string]interface{})["pendidikanAkhir"],
 				"alamat":             data["generalInformation"].(map[string]interface{})["alamat"],
 				"pekerjaan_pasangan": data["generalInformation"].(map[string]interface{})["pekerjaanPasangan"],
+				"no_hp":              data["generalInformation"].(map[string]interface{})["noHP"],
 				"data_kb": bson.M{
 					"status_jkn":        data["generalInformation"].(map[string]interface{})["statusJkn"],
 					"no_faskes":         data["generalInformation"].(map[string]interface{})["noFaskes"],
@@ -260,6 +261,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 				"nama_pasangan":    data["generalInformation"].(map[string]interface{})["namaSuami"],
 				"pendidikan":       data["generalInformation"].(map[string]interface{})["pendidikan"],
 				"alamat":           data["generalInformation"].(map[string]interface{})["alamatDomisili"],
+				"no_hp":            data["section2"].(map[string]interface{})["noTelp"],
 				"data_kehamilan": bson.M{
 					"pekerjaan":                   data["generalInformation"].(map[string]interface{})["pekerjaan"],
 					"agama":                       data["generalInformation"].(map[string]interface{})["agama"],
@@ -295,6 +297,7 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 				"kecamatan":   data["generalInformation"].(map[string]interface{})["kecamatan"],
 				"kabupaten":   data["generalInformation"].(map[string]interface{})["kabupaten"],
 				"provinsi":    data["generalInformation"].(map[string]interface{})["provinsi"],
+				"no_hp":       data["generalInformation"].(map[string]interface{})["noHP"],
 				"data_imunisasi": bson.M{
 					"detail_bayi":                   data["detailBayi"],
 					"pemeriksaan_neonatus":          data["pemeriksaanNeonatus"],
