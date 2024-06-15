@@ -202,17 +202,9 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		id_layanan_str, ok := dataMap["id_layanan"].(string)
+		id_layanan_int, ok := dataMap["id_layanan"].(float64)
 		if !ok {
 			jsonData, _ := json.Marshal(map[string]string{"message": "(POST) error id_layanan is empty"})
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(jsonData)
-			return
-		}
-
-		id_layanan_int, err := strconv.Atoi(id_layanan_str)
-		if err != nil {
-			jsonData, _ := json.Marshal(map[string]string{"message": "(POST) error converting id_layanan to integer"})
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(jsonData)
 			return
