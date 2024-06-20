@@ -169,11 +169,10 @@ func Input(w http.ResponseWriter, r *http.Request) {
 			"provinsi":    data["generalInformation"].(map[string]interface{})["provinsi"],
 			"no_hp":       data["generalInformation"].(map[string]interface{})["noHP"],
 			"data_imunisasi": bson.M{
-				"detail_bayi":                     data["detailBayi"],
-				"pemeriksaan_neonatus":            data["pemeriksaanNeonatus"],
-				"pelayanan_klinis_tumbuh_kembang": data["pelayananKlinisTumbuhKembang"],
-				"pemberian_vitamin_a":             data["pemberianVitaminA"],
-				"imunisasi":                       data["imunisasi"],
+				"detail_bayi":                   data["detailBayi"],
+				"pemeriksaan_neonatus":          data["pemeriksaanNeonatus"],
+				"pemeriksaan_neonatus_lanjutan": data["pemeriksaanNeonatusLanjutan"],
+				"pemeriksaan_balita":            data["pemeriksaanBalita"],
 			},
 		}
 	default:

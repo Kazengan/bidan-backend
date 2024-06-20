@@ -11,3 +11,4 @@ __azurite_db*__.json
 *.py
 *.sh
 main
+.idx
