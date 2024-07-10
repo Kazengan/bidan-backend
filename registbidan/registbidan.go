@@ -16,7 +16,6 @@ import (
 )
 
 type User struct {
-	Email       string `bson:"email" json:"email"`
 	Password    string `bson:"password" json:"password"`
 	FullName    string `bson:"full_name" json:"full_name"`
 	Username    string `bson:"username" json:"username"`
@@ -93,16 +92,15 @@ func RegistBidan(w http.ResponseWriter, r *http.Request) {
 	db := client.Database("mydb")
 	collection := db.Collection("bidan")
 
-	//check in database if email or username already exists
+	//check in database if username already exists
 	filter := bson.M{"$or": []bson.M{
-		{"email": user.Email},
 		{"username": user.Username},
 	}}
 
 	var existingUser bson.M
 	err = collection.FindOne(context.Background(), filter).Decode(&existingUser)
 	if err == nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": "email or username already exists"})
+		jsonData, _ := json.Marshal(map[string]interface{}{"message": "username already exists"})
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonData)
 		return

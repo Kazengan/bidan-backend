@@ -59,47 +59,103 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	db := client.Database("mydb")
-	soapKBCollection := db.Collection("soap_kb")
+
+	// Retrieve optional id_layanan parameter
+	idLayananStr := r.URL.Query().Get("id_layanan")
+	var idLayanan int
+	if idLayananStr != "" {
+		idLayanan, err = strconv.Atoi(idLayananStr)
+		if err != nil {
+			respondWithError(w, http.StatusBadRequest, "Invalid id_layanan")
+			return
+		}
+	}
 
 	currentYear := time.Now().Year()
 	filterCurrentYear := strconv.Itoa(currentYear) + "-"
 
-	pipeline := []bson.M{
-		{
-			"$project": bson.M{
-				"_id":        0,
-				"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
-				"id_layanan": bson.M{"$literal": 0},
+	var pipeline []bson.M
+
+	if idLayananStr == "" {
+		// If id_layanan is not provided, aggregate from all collections
+		pipeline = []bson.M{
+			{
+				"$project": bson.M{
+					"_id":        0,
+					"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
+					"id_layanan": bson.M{"$literal": 0},
+				},
 			},
-		},
-		{
-			"$unionWith": bson.M{
-				"coll": "soap_kehamilan",
-				"pipeline": []bson.M{
-					{
-						"$project": bson.M{
-							"_id":        0,
-							"tanggal":    bson.M{"$substr": []interface{}{"$soapAnc.tanggal", 0, 7}},
-							"id_layanan": bson.M{"$literal": 1},
+			{
+				"$unionWith": bson.M{
+					"coll": "soap_kehamilan",
+					"pipeline": []bson.M{
+						{
+							"$project": bson.M{
+								"_id":        0,
+								"tanggal":    bson.M{"$substr": []interface{}{"$soapAnc.tanggal", 0, 7}},
+								"id_layanan": bson.M{"$literal": 1},
+							},
 						},
 					},
 				},
 			},
-		},
-		{
-			"$unionWith": bson.M{
-				"coll": "soap_imunisasi",
-				"pipeline": []bson.M{
-					{
-						"$project": bson.M{
-							"_id":        0,
-							"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
-							"id_layanan": bson.M{"$literal": 2},
+			{
+				"$unionWith": bson.M{
+					"coll": "soap_imunisasi",
+					"pipeline": []bson.M{
+						{
+							"$project": bson.M{
+								"_id":        0,
+								"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
+								"id_layanan": bson.M{"$literal": 2},
+							},
 						},
 					},
 				},
 			},
-		},
+		}
+	} else {
+		// If id_layanan is provided, aggregate from the specific collection
+		switch idLayanan {
+		case 0:
+			pipeline = []bson.M{
+				{
+					"$project": bson.M{
+						"_id":        0,
+						"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
+						"id_layanan": bson.M{"$literal": 0},
+					},
+				},
+			}
+		case 1:
+			pipeline = []bson.M{
+				{
+					"$project": bson.M{
+						"_id":        0,
+						"tanggal":    bson.M{"$substr": []interface{}{"$soapAnc.tanggal", 0, 7}},
+						"id_layanan": bson.M{"$literal": 1},
+					},
+				},
+			}
+		case 2:
+			pipeline = []bson.M{
+				{
+					"$project": bson.M{
+						"_id":        0,
+						"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 7}},
+						"id_layanan": bson.M{"$literal": 2},
+					},
+				},
+			}
+		default:
+			respondWithError(w, http.StatusBadRequest, "Invalid id_layanan")
+			return
+		}
+	}
+
+	// Append the common stages for all cases
+	pipeline = append(pipeline, []bson.M{
 		{
 			"$match": bson.M{
 				"tanggal": bson.M{"$regex": "^" + filterCurrentYear},
@@ -118,9 +174,22 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 				"jumlah": bson.M{"$sum": 1},
 			},
 		},
+	}...)
+
+	// Determine the collection to use based on id_layanan
+	var collection *mongo.Collection
+	switch idLayanan {
+	case 0:
+		collection = db.Collection("soap_kb")
+	case 1:
+		collection = db.Collection("soap_kehamilan")
+	case 2:
+		collection = db.Collection("soap_imunisasi")
+	default:
+		collection = db.Collection("soap_kb") // Default to soap_kb if id_layanan is not provided
 	}
 
-	cursor, err := soapKBCollection.Aggregate(context.TODO(), pipeline)
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Error aggregating data")
 		return

@@ -2,5 +2,7 @@
     "azureFunctions.deploySubpath": ".",
     "azureFunctions.projectLanguage": "Custom",
     "azureFunctions.projectRuntime": "~4",
-    "debug.internalConsoleOptions": "neverOpen"
+    "debug.internalConsoleOptions": "neverOpen",
+    "IDX.aI.enableInlineCompletion": true,
+    "IDX.aI.enableCodebaseIndexing": true
 }

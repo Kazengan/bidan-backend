@@ -8,19 +8,21 @@ import (
 	"github.com/Kazengan/bidan-backend/bidanlogin"
 	"github.com/Kazengan/bidan-backend/chart"
 	"github.com/Kazengan/bidan-backend/count"
+	"github.com/Kazengan/bidan-backend/countt"
 	"github.com/Kazengan/bidan-backend/deletebidan"
 	"github.com/Kazengan/bidan-backend/edit"
 	"github.com/Kazengan/bidan-backend/editimunisasi"
 	"github.com/Kazengan/bidan-backend/editkb"
+	"github.com/Kazengan/bidan-backend/export"
 	"github.com/Kazengan/bidan-backend/findpasien"
-	"github.com/Kazengan/bidan-backend/getallbidan"
+	getallbidan "github.com/Kazengan/bidan-backend/getbidan"
 	"github.com/Kazengan/bidan-backend/getpasien"
 	"github.com/Kazengan/bidan-backend/getreservasi"
 	"github.com/Kazengan/bidan-backend/helper"
+	"github.com/Kazengan/bidan-backend/input"
 	"github.com/Kazengan/bidan-backend/inputimunisasi"
 	"github.com/Kazengan/bidan-backend/inputkb"
 	"github.com/Kazengan/bidan-backend/inputkehamilan"
-	"github.com/Kazengan/bidan-backend/input"
 	"github.com/Kazengan/bidan-backend/registbidan"
 	"github.com/Kazengan/bidan-backend/registpasien"
 	"github.com/Kazengan/bidan-backend/soap"
@@ -28,9 +30,9 @@ import (
 	"github.com/Kazengan/bidan-backend/soapkb"
 	"github.com/Kazengan/bidan-backend/soapkehamilan"
 	"github.com/Kazengan/bidan-backend/table"
-	"github.com/Kazengan/bidan-backend/tablekehamilan"
 	"github.com/Kazengan/bidan-backend/tableimunisasi"
 	"github.com/Kazengan/bidan-backend/tablekb"
+	"github.com/Kazengan/bidan-backend/tablekehamilan"
 )
 
 func main() {
@@ -42,6 +44,7 @@ func main() {
 	http.HandleFunc("/api/getpasien", getpasien.GetPasien)
 	http.HandleFunc("/api/getreservasi", getreservasi.GetReservasi)
 	http.HandleFunc("/api/count", count.CountHandler)
+	http.HandleFunc("/api/countt", countt.CountHandler)
 	http.HandleFunc("/api/chart", chart.Chart)
 	http.HandleFunc("/api/editkb", editkb.EditKb)
 	http.HandleFunc("/api/editimunisasi", editimunisasi.EditImunisasi)
@@ -59,11 +62,12 @@ func main() {
 	http.HandleFunc("/api/tablekehamilan", tablekehamilan.TableKehamilan)
 	http.HandleFunc("/api/inputkehamilan", inputkehamilan.InputKehamilan)
 	http.HandleFunc("/api/inputimunisasi", inputimunisasi.InputImunisasi)
-	http.HandleFunc("/api/getallbidan", getallbidan.GetAllBidan)
+	http.HandleFunc("/api/getbidan", getallbidan.GetAllBidan)
 	http.HandleFunc("/api/deletebidan", deletebidan.DeleteBidan)
 	http.HandleFunc("/api/registbidan", registbidan.RegistBidan)
 	http.HandleFunc("/api/registpasien", registpasien.RegistPasien)
-	http.HandleFunc("/api/helper	", helper.Helper)
+	http.HandleFunc("/api/helper", helper.Helper)
+	http.HandleFunc("/api/export", export.Export)
 
 	log.Printf("Listening on %s\n", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
