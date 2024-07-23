@@ -34,7 +34,7 @@ func Soap(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request body
 	decoder := json.NewDecoder(r.Body)
-	var dataMap map[interface{}]interface{}
+	var dataMap map[string]interface{}
 	if err := decoder.Decode(&dataMap); err != nil {
 		jsonData, _ := json.Marshal(map[string]interface{}{"message": "Invalid request body", "error": err.Error()})
 		w.WriteHeader(http.StatusBadRequest)

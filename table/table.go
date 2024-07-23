@@ -42,6 +42,7 @@ func processHistoryData(pasienHistory []bson.M) {
 		tglDatang = tglDatang[:10]
 		// convert tglDatang to dd-mm-yyyy
 		tglDatang = tglDatang[8:] + "-" + tglDatang[5:7] + "-" + tglDatang[:4]
+		data["datetime"] = data["tglDatang"]
 		data["tglDatang"] = tglDatang
 	}
 }
@@ -123,8 +124,10 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 				"id_pasien": idInt,
 				"usia":      pasienData["umur"],
 				"name":      pasienData["nama_pasien"],
+				"datetime":  pasienHistoryArr[len(pasienHistoryArr)-1]["datetime"].(string),
 				"tglDatang": tanggalIndonesia,
 				"subRows":   subRows,
+				"noHP":      pasienData["no_hp"],
 			}
 
 			if idLayananInt == 0 {
