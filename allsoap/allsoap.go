@@ -84,6 +84,10 @@ func Allsoap(w http.ResponseWriter, r *http.Request) {
 				"datetime":   "$tglDatang",
 				"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 10}},
 				"id_layanan": bson.M{"$literal": "KB"},
+				"s":          1,
+				"o":          1,
+				"a":          1,
+				"p":          1,
 			},
 		},
 		{
@@ -96,6 +100,10 @@ func Allsoap(w http.ResponseWriter, r *http.Request) {
 							"datetime":   "$soapAnc.tanggal",
 							"tanggal":    bson.M{"$substr": []interface{}{"$soapAnc.tanggal", 0, 10}},
 							"id_layanan": bson.M{"$literal": "Kehamilan"},
+							"s":          "$soapAnc.s",
+							"o":          "$soapAnc.o",
+							"a":          "$soapAnc.a",
+							"p":          "$soapAnc.p",
 						},
 					},
 				},
@@ -111,7 +119,33 @@ func Allsoap(w http.ResponseWriter, r *http.Request) {
 							"datetime":   "$tglDatang",
 							"tanggal":    bson.M{"$substr": []interface{}{"$tglDatang", 0, 10}},
 							"id_layanan": bson.M{"$literal": "Imunisasi"},
+							"s":          1,
+							"o":          1,
+							"a":          1,
+							"p":          1,
 						},
+					},
+				},
+			},
+		},
+		{
+			"$sort": bson.M{
+				"datetime": 1,
+			},
+		},
+		{
+			"$group": bson.M{
+				"_id": "$id_pasien",
+				"subRows": bson.M{
+					"$push": bson.M{
+						"id_soap":    "$_id",
+						"datetime":   "$datetime",
+						"tglDatang":  "$tanggal",
+						"id_layanan": "$id_layanan",
+						"s":          "$s",
+						"o":          "$o",
+						"a":          "$a",
+						"p":          "$p",
 					},
 				},
 			},
@@ -119,27 +153,21 @@ func Allsoap(w http.ResponseWriter, r *http.Request) {
 		{
 			"$lookup": bson.M{
 				"from":         "pasien",
-				"localField":   "id_pasien",
+				"localField":   "_id",
 				"foreignField": "id_pasien",
-				"as":           "pasien_info",
+				"as":           "pasien",
 			},
 		},
 		{
-			"$unwind": "$pasien_info",
+			"$unwind": "$pasien",
 		},
 		{
 			"$project": bson.M{
-				"id_pasien":  1,
-				"tanggal":    1,
-				"id_layanan": 1,
-				"datetime":   1,
-				"namaPasien": "$pasien_info.nama_pasien",
-				"noHP":       "$pasien_info.no_hp",
-			},
-		},
-		{
-			"$sort": bson.M{
-				"tanggal": 1, // 1 for ascending order, -1 for descending order
+				"_id":       0,
+				"id_pasien": "$pasien.id_pasien",
+				"subRows":   1,
+				"noHP":      "$pasien.no_hp",
+				"name":      "$pasien.nama_pasien",
 			},
 		},
 	}

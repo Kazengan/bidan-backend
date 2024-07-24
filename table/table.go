@@ -144,6 +144,7 @@ func getPatientData(client *mongo.Client, idPasienArr []string, idLayananInt int
 				data["namaIbu"] = pasienData["nama_ibu"]
 			}
 
+
 			returnData = append(returnData, data)
 
 		} else {
