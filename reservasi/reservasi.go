@@ -46,7 +46,7 @@ func Reservasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if phoneNumber == "" {
-		http.Error(w, `{"message": "phone number needed"}`, http.StatusUnauthorized)
+		http.Error(w, `{"message": "noHP needed"}`, http.StatusUnauthorized)
 		return
 	}
 	if idLayanan == "" {
@@ -54,11 +54,11 @@ func Reservasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if hariReservasi == "" {
-		http.Error(w, `{"message": "hari reservasi needed"}`, http.StatusUnauthorized)
+		http.Error(w, `{"message": "hariReservasi needed"}`, http.StatusUnauthorized)
 		return
 	}
 	if waktu == "" {
-		http.Error(w, `{"message": "waktu tersedia needed"}`, http.StatusUnauthorized)
+		http.Error(w, `{"message": "waktuTersedia needed"}`, http.StatusUnauthorized)
 		return
 	}
 
