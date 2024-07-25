@@ -192,7 +192,7 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 
 	// Initialize the result map with default values for all months
 	resultMap := []bson.M{
-		{"month": "Jan", "revenue": 0},
+		{"month": "Janw", "revenue": 0},
 		{"month": "Feb", "revenue": 0},
 		{"month": "Mar", "revenue": 0},
 		{"month": "Apr", "revenue": 0},
