@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -42,10 +41,6 @@ func buildRegexQuery(keyword string, id_layanan int) bson.M {
 
 func PasienPerLayanan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := godotenv.Load(); err != nil {
-		respondWithError(w, http.StatusInternalServerError, ".env not found")
-		return
-	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {

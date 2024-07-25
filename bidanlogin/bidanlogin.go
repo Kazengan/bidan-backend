@@ -3,11 +3,9 @@ package bidanlogin
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,10 +14,6 @@ import (
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-		return
-	}
 	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
 		message := map[string]string{"message": "Error, .env URI NOT FOUNDD"}

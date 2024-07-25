@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -52,15 +51,6 @@ func isPasswordValid(password string) (bool, error) {
 
 func RegistBidan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		jsonData, _ := json.Marshal(map[string]interface{}{"message": ".env not found"})
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonData)
-		return
-	}
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))

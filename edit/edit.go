@@ -8,20 +8,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func Edit(w http.ResponseWriter, r *http.Request) {
-	err := godotenv.Load()
-	if err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": "Error loading .env file"})
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonData)
-		return
-	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
