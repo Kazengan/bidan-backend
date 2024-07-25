@@ -46,7 +46,7 @@ func Reservasi(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if phoneNumber == "" {
-		http.Error(w, `{"message": "noHP needed"}`, http.StatusUnauthorized)
+		http.Error(w, `{"message": "noHP neeeded"}`, http.StatusUnauthorized)
 		return
 	}
 	if idLayanan == "" {
