@@ -192,7 +192,7 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 
 	// Initialize the result map with default values for all months
 	resultMap := []bson.M{
-		{"month": "Janw", "revenue": 0},
+		{"month": "Jan", "revenue": 0},
 		{"month": "Feb", "revenue": 0},
 		{"month": "Mar", "revenue": 0},
 		{"month": "Apr", "revenue": 0},
@@ -204,6 +204,7 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 		{"month": "Oct", "revenue": 0},
 		{"month": "Nov", "revenue": 0},
 		{"month": "Dec", "revenue": 0},
+		{"month": "Deec", "revenue": 0},
 	}
 
 	// Iterate through the cursor and update the resultMap
