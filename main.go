@@ -41,7 +41,7 @@ import (
 
 func main() {
 	listenAddr := ":8080"
-	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
+	if val, ok := os.LookupEnv("PORT"); ok {
 		listenAddr = ":" + val
 	}
 	http.HandleFunc("/api/allsoap", allsoap.Allsoap)
