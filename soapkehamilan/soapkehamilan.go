@@ -43,7 +43,7 @@ func SoapKehamilan(w http.ResponseWriter, r *http.Request) {
 
 	data := dataMap["data"].(map[string]interface{})
 	data["tglDatang"] = data["soapAnc"].(map[string]interface{})["tanggal"].(string)
-	
+
 	idPasien, _ := data["id_pasien"].(string)
 	data["id_pasien"], err = strconv.Atoi(idPasien)
 	if err != nil {
