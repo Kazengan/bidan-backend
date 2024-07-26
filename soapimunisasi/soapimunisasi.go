@@ -7,19 +7,12 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func SoapImunisasi(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	err := godotenv.Load()
-	if err != nil {
-		jsonData, _ := json.Marshal(map[string]string{"message": ".env not found"})
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonData)
-	}
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
