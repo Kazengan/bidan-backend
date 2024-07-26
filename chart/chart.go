@@ -204,7 +204,6 @@ func Chart(w http.ResponseWriter, r *http.Request) {
 		{"month": "Oct", "revenue": 0},
 		{"month": "Nov", "revenue": 0},
 		{"month": "Dec", "revenue": 0},
-		{"month": "Deec", "revenue": 0},
 	}
 
 	// Iterate through the cursor and update the resultMap
